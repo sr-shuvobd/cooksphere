@@ -39,7 +39,7 @@ export default function HeroSection() {
               >
                 <div className="inline-flex items-center gap-2 border border-emerald-400 dark:border-orange-500 rounded-full px-4 py-2 text-white bg-emerald-950/40 dark:bg-black/40 backdrop-blur-md mb-6 shadow-sm">
                   <FaUtensils className="text-emerald-400 dark:text-orange-400" />
-                  <span className="text-xs sm:text-sm font-semibold tracking-wide uppercase">Cook. Share. Inspire.</span>
+                  <span className="text-xs sm:text-sm font-semibold tracking-wide uppercase">Cook. Share Inspire.</span>
                 </div>
 
                 <h1 className="text-4xl md:text-5xl xl:text-6xl font-extrabold leading-[1.15] text-white tracking-tight">
