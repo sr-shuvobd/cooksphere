@@ -5,12 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@heroui/react";
 import { FaUtensils } from "react-icons/fa";
-import {
-  FiMenu,
-  FiX,
-  FiSun,
-  FiMoon,
-} from "react-icons/fi";
+import { FiMenu, FiX, FiSun, FiMoon } from "react-icons/fi";
 import { useTheme } from "@/context/ThemeContext";
 
 const navLinks = [
@@ -44,7 +39,10 @@ const Navbar = () => {
 
           <div>
             <h2 className="text-xl font-extrabold text-stone-800 dark:text-white sm:text-2xl tracking-tight transition-colors duration-300">
-              Recipe<span className="text-emerald-600 dark:text-orange-400 transition-colors duration-300">Hub</span>
+              Recipe
+              <span className="text-emerald-600 dark:text-orange-400 transition-colors duration-300">
+                Hub
+              </span>
             </h2>
 
             <p className="hidden text-xs text-stone-500 dark:text-stone-400 sm:block font-medium">
@@ -76,40 +74,47 @@ const Navbar = () => {
 
         {/* Desktop Right */}
         <div className="hidden items-center gap-4 lg:flex">
-          <button 
+          <button
             onClick={toggleTheme}
             className="p-2 rounded-full text-xl text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-white/10 hover:text-emerald-600 dark:hover:text-orange-400 transition-all duration-300 cursor-pointer"
             aria-label="Toggle Theme"
           >
-            {mounted && theme === "dark" ? <FiSun className="text-orange-400" /> : <FiMoon className="text-emerald-600" />}
+            {mounted && theme === "dark" ? (
+              <FiSun className="text-orange-400" />
+            ) : (
+              <FiMoon className="text-emerald-600" />
+            )}
           </button>
 
-          <Button
-            as={Link}
+          <Link
             href="/login"
-            variant="bordered"
-            className="border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-white/5 font-semibold text-sm"
+            onClick={() => setIsOpen(false)}
+            className="inline-flex items-center justify-center h-11 px-4 rounded-xl border border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-white/5 font-semibold transition-all duration-300"
           >
             Login
-          </Button>
+          </Link>
 
-          <Button
-            as={Link}
+          <Link
             href="/register"
-            className="bg-emerald-600 hover:bg-emerald-700 dark:bg-orange-500 dark:hover:bg-orange-600 text-white font-semibold text-sm shadow-sm transition-colors duration-300"
+            onClick={() => setIsOpen(false)}
+            className="inline-flex items-center justify-center h-11 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 dark:bg-orange-500 dark:hover:bg-orange-600 text-white font-semibold shadow-sm transition-all duration-300"
           >
             Register
-          </Button>
+          </Link>
         </div>
 
         {/* Mobile Controls */}
         <div className="flex items-center gap-3 lg:hidden">
-          <button 
+          <button
             onClick={toggleTheme}
             className="p-2 rounded-full text-xl text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-white/10 hover:text-emerald-600 dark:hover:text-orange-400 transition-all duration-300 cursor-pointer"
             aria-label="Toggle Theme"
           >
-            {mounted && theme === "dark" ? <FiSun className="text-orange-400" /> : <FiMoon className="text-emerald-600" />}
+            {mounted && theme === "dark" ? (
+              <FiSun className="text-orange-400" />
+            ) : (
+              <FiMoon className="text-emerald-600" />
+            )}
           </button>
 
           <button
@@ -141,24 +146,21 @@ const Navbar = () => {
             ))}
 
             <div className="mt-4 pt-4 border-t border-stone-100 dark:border-stone-800/60 flex flex-col gap-3">
-              <Button
-                as={Link}
+              <Link
                 href="/login"
-                variant="bordered"
                 onClick={() => setIsOpen(false)}
-                className="border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-white/5 font-semibold"
+                className="inline-flex items-center justify-center h-11 px-4 rounded-xl border border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-white/5 font-semibold transition-all duration-300"
               >
                 Login
-              </Button>
+              </Link>
 
-              <Button
-                as={Link}
+              <Link
                 href="/register"
                 onClick={() => setIsOpen(false)}
-                className="bg-emerald-600 hover:bg-emerald-700 dark:bg-orange-500 dark:hover:bg-orange-600 text-white font-semibold shadow-sm"
+                className="inline-flex items-center justify-center h-11 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 dark:bg-orange-500 dark:hover:bg-orange-600 text-white font-semibold shadow-sm transition-all duration-300"
               >
                 Register
-              </Button>
+              </Link>
             </div>
           </div>
         </div>
