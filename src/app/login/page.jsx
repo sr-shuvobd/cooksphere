@@ -58,7 +58,7 @@ export default function LoginPage() {
       } else {
         toast.success("Login successful! Redirecting...");
         setTimeout(() => {
-          router.push("/");
+          router.push("/dashboard");
         }, 1500);
       }
     } catch (err) {

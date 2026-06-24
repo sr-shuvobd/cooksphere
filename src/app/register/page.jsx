@@ -51,17 +51,21 @@ export default function RegisterPage() {
     formData.append("image", file);
 
     try {
-      const response = await fetch("https://api.imgbb.com/1/upload?key=4983d5f47f26efc3e85064efe6b1a73c", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        "https://api.imgbb.com/1/upload?key=4983d5f47f26efc3e85064efe6b1a73c",
+        {
+          method: "POST",
+          body: formData,
+        },
+      );
 
       const result = await response.json();
       if (result.success && result.data && result.data.url) {
         setImageUrl(result.data.url);
         toast.success("Image uploaded successfully!");
       } else {
-        const errMsg = result.error?.message || "Upload failed. Please try again.";
+        const errMsg =
+          result.error?.message || "Upload failed. Please try again.";
         setImageError(errMsg);
         toast.error(errMsg);
       }
@@ -102,10 +106,12 @@ export default function RegisterPage() {
       newErrors.password = "Password must be at least 6 characters";
       toast.error("Password must be at least 6 characters");
     } else if (!/[A-Z]/.test(password)) {
-      newErrors.password = "Password must contain at least one uppercase letter";
+      newErrors.password =
+        "Password must contain at least one uppercase letter";
       toast.error("Password must contain at least one uppercase letter");
     } else if (!/[a-z]/.test(password)) {
-      newErrors.password = "Password must contain at least one lowercase letter";
+      newErrors.password =
+        "Password must contain at least one lowercase letter";
       toast.error("Password must contain at least one lowercase letter");
     }
 
@@ -147,7 +153,9 @@ export default function RegisterPage() {
       }
     } catch (err) {
       console.error("Signup exception caught:", err);
-      setFormError(err.message || "An unexpected error occurred during signup.");
+      setFormError(
+        err.message || "An unexpected error occurred during signup.",
+      );
       toast.error(err.message || "An unexpected error occurred during signup.");
     }
   };
@@ -159,6 +167,7 @@ export default function RegisterPage() {
         callbackURL: "/dashboard",
       });
     } catch (err) {
+      console.error(err);
       toast.error("Failed to authenticate with Google.");
     }
   };
@@ -225,11 +234,15 @@ export default function RegisterPage() {
               <label className="block mb-2 text-sm font-semibold text-stone-700 dark:text-stone-300">
                 Profile Image
               </label>
-              
+
               <div className="flex items-center gap-4 p-4 rounded-xl border border-dashed border-stone-300 dark:border-stone-700 bg-stone-50/50 dark:bg-white/5">
                 <div className="relative w-16 h-16 rounded-full overflow-hidden bg-stone-200 dark:bg-stone-850 flex items-center justify-center flex-shrink-0">
                   {imageUrl ? (
-                    <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                    <img
+                      src={imageUrl}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
                     <span className="text-xl">🍳</span>
                   )}
@@ -239,7 +252,7 @@ export default function RegisterPage() {
                     </div>
                   )}
                 </div>
-                
+
                 <div className="flex-grow">
                   <input
                     type="file"
@@ -252,10 +265,16 @@ export default function RegisterPage() {
                     htmlFor="image-upload"
                     className="inline-block px-4 py-2 bg-white dark:bg-stone-800 text-stone-800 dark:text-white border border-stone-200 dark:border-stone-700 rounded-lg text-sm font-bold cursor-pointer hover:bg-stone-50 dark:hover:bg-white/10 transition-all"
                   >
-                    {isUploading ? "Uploading..." : imageUrl ? "Change Image" : "Choose File"}
+                    {isUploading
+                      ? "Uploading..."
+                      : imageUrl
+                        ? "Change Image"
+                        : "Choose File"}
                   </label>
                   {imageError && (
-                    <p className="text-xs text-rose-500 font-semibold mt-1">{imageError}</p>
+                    <p className="text-xs text-rose-500 font-semibold mt-1">
+                      {imageError}
+                    </p>
                   )}
                   <p className="text-xs text-stone-400 dark:text-stone-400 mt-1.5 leading-relaxed">
                     PNG, JPG or WEBP up to 5MB (Uploaded directly to ImgBB)
@@ -345,7 +364,7 @@ export default function RegisterPage() {
             radius="full"
             startContent={<FaGoogle />}
             className="w-full"
-            onClick={handleGoogleSignIn}
+            onPress={handleGoogleSignIn}
           >
             Continue with Google
           </Button>
