@@ -22,7 +22,6 @@ export default function AddRecipePage() {
   const { data: session } = useSession();
   const isPremium = session?.user?.role === "premium" || session?.user?.plan === "premium";
 
-  // Form states
   const [recipeName, setRecipeName] = useState("");
   const [category, setCategory] = useState("Pasta");
   const [cuisineType, setCuisineType] = useState("");
@@ -31,16 +30,13 @@ export default function AddRecipePage() {
   const [ingredients, setIngredients] = useState([""]);
   const [instructions, setInstructions] = useState([""]);
 
-  // Image Upload state
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
 
-  // Form submission / validation states
   const [submitting, setSubmitting] = useState(false);
 
-  // Categories list matching standard recipe styles
   const categories = [
     "Pizza",
     "Burger",
@@ -55,7 +51,6 @@ export default function AddRecipePage() {
     "Main Course",
   ];
 
-  // Handle dynamic ingredients
   const handleIngredientChange = (index, value) => {
     const updated = [...ingredients];
     updated[index] = value;
@@ -74,7 +69,6 @@ export default function AddRecipePage() {
     }
   };
 
-  // Handle dynamic instructions
   const handleInstructionChange = (index, value) => {
     const updated = [...instructions];
     updated[index] = value;
@@ -93,66 +87,113 @@ export default function AddRecipePage() {
     }
   };
 
-  // Handle image drag and drop & selection
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
 
-      // Simulate imgbb uploading animation for better UX
-      setUploading(true);
-      setUploadProgress(0);
-      const interval = setInterval(() => {
-        setUploadProgress((prev) => {
-          if (prev >= 100) {
-            clearInterval(interval);
-            setUploading(false);
-            toast.success("Image uploaded successfully (Mock ImgBB)!");
-            return 100;
-          }
-          return prev + 20;
-        });
-      }, 150);
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image size must be less than 5MB");
+      return;
+    }
+
+    setUploading(true);
+    setImageFile(file);
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+      const response = await fetch(
+        "https://api.imgbb.com/1/upload?key=4983d5f47f26efc3e85064efe6b1a73c",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const result = await response.json();
+      if (result.success && result.data && result.data.url) {
+        setImageUrl(result.data.url);
+        toast.success("Image uploaded successfully!");
+      } else {
+        const errMsg = result.error?.message || "Upload failed. Please try again.";
+        toast.error(errMsg);
+      }
+    } catch (err) {
+      toast.error("Connection error. Please try again.");
+    } finally {
+      setUploading(false);
     }
   };
 
-  // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation
     if (!recipeName.trim()) return toast.error("Recipe Name is required!");
     if (!cuisineType.trim()) return toast.error("Cuisine Type is required!");
     if (!preparationTime || preparationTime <= 0) return toast.error("Please enter a valid preparation time!");
     if (ingredients.some(ing => !ing.trim())) return toast.error("Please fill in all ingredient fields!");
     if (instructions.some(ins => !ins.trim())) return toast.error("Please fill in all instruction steps!");
-    if (!imagePreview) return toast.error("Please upload a recipe image!");
+    if (!imageUrl) return toast.error("Please wait for image upload to complete or upload a recipe image!");
 
     setSubmitting(true);
 
-    // Simulate successful form submittal
-    setTimeout(() => {
+    const newRecipe = {
+      recipeName,
+      recipeImage: imageUrl,
+      category,
+      cuisineType,
+      difficultyLevel,
+      preparationTime: Number(preparationTime),
+      ingredients: ingredients.filter(i => i.trim() !== ""),
+      instructions: instructions.filter(i => i.trim() !== ""),
+      authorId: session?.user?.id || "",
+      authorName: session?.user?.name || "Shohanur Rahman",
+      authorEmail: session?.user?.email || "srs@gmail.com",
+      likesCount: 0,
+      isFeatured: false,
+      status: "pending",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    try {
+      const response = await fetch("http://localhost:5000/recipes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newRecipe),
+      });
+
+      const result = await response.json();
+      if (result.insertedId) {
+        toast.success("Recipe submitted successfully!");
+        setRecipeName("");
+        setCategory("Pasta");
+        setCuisineType("");
+        setDifficultyLevel("Medium");
+        setPreparationTime("");
+        setIngredients([""]);
+        setInstructions([""]);
+        setImageFile(null);
+        setImagePreview("");
+        setImageUrl("");
+      } else {
+        toast.error("Failed to add recipe. Please try again.");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Server connection failed. Make sure the backend is running.");
+    } finally {
       setSubmitting(false);
-
-      toast.success("Recipe submitted successfully! (Mocked)");
-
-      // Reset form
-      setRecipeName("");
-      setCategory("Pasta");
-      setCuisineType("");
-      setDifficultyLevel("Medium");
-      setPreparationTime("");
-      setIngredients([""]);
-      setInstructions([""]);
-      setImageFile(null);
-      setImagePreview("");
-      setUploadProgress(0);
-    }, 1500);
+    }
   };
 
   return (
@@ -302,7 +343,7 @@ export default function AddRecipePage() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-bold text-stone-750 dark:text-stone-300">Upload Image (ImgBB Simulation) *</label>
+                  <label className="text-sm font-bold text-stone-750 dark:text-stone-300">Upload Image (ImgBB) *</label>
 
                   <div className="border-2 border-dashed border-stone-200 dark:border-white/15 rounded-3xl p-6 text-center hover:border-emerald-500 dark:hover:border-emerald-400 transition-colors relative bg-stone-50/50 dark:bg-[#021c17]/50">
                     <input
@@ -320,11 +361,9 @@ export default function AddRecipePage() {
                           className="h-40 w-auto object-cover rounded-2xl border border-stone-200 dark:border-white/15 shadow-md"
                         />
                         {uploading ? (
-                          <div className="mt-4 w-48 bg-stone-200 dark:bg-stone-700 h-2 rounded-full overflow-hidden">
-                            <div
-                              className="bg-emerald-500 h-full transition-all duration-150"
-                              style={{ width: `${uploadProgress}%` }}
-                            />
+                          <div className="mt-4 flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-xs font-bold">
+                            <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+                            Uploading...
                           </div>
                         ) : (
                           <button
