@@ -30,7 +30,7 @@ export default function AddRecipePage() {
   const [preparationTime, setPreparationTime] = useState("");
   const [ingredients, setIngredients] = useState([""]);
   const [instructions, setInstructions] = useState([""]);
-  
+
   // Image Upload state
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
@@ -138,27 +138,9 @@ export default function AddRecipePage() {
     // Simulate successful form submittal
     setTimeout(() => {
       setSubmitting(false);
-      
-      // Output detailed structure in console for development inspection
-      console.log("Mock Submit Data:", {
-        recipeName,
-        category,
-        cuisineType,
-        difficultyLevel,
-        preparationTime: Number(preparationTime),
-        ingredients: ingredients.filter(i => i.trim() !== ""),
-        instructions: instructions.filter(i => i.trim() !== ""),
-        recipeImage: imagePreview,
-        authorName: session?.user?.name || "Shohanur Rahman",
-        authorEmail: session?.user?.email || "srs@gmail.com",
-        likesCount: 0,
-        isFeatured: false,
-        status: "pending",
-        createdAt: new Date().toISOString(),
-      });
 
       toast.success("Recipe submitted successfully! (Mocked)");
-      
+
       // Reset form
       setRecipeName("");
       setCategory("Pasta");
@@ -203,8 +185,8 @@ export default function AddRecipePage() {
                 </span>
               </div>
               <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
-                {isPremium 
-                  ? "Enjoy unlimited recipe creation! Share as many as you wish." 
+                {isPremium
+                  ? "Enjoy unlimited recipe creation! Share as many as you wish."
                   : "You've used 1 of 2 recipe slots. Upgrade to Premium for unlimited publishing."}
               </p>
             </div>
@@ -213,11 +195,11 @@ export default function AddRecipePage() {
 
         {/* Form and Preview Grid */}
         <div className="grid lg:grid-cols-3 gap-8 items-start">
-          
+
           {/* Main Form (Col Span 2) */}
           <div className="lg:col-span-2 space-y-6">
             <form onSubmit={handleSubmit} className="bg-white dark:bg-[#03241f]/30 border border-stone-200 dark:border-white/10 rounded-3xl p-6 md:p-8 shadow-xl shadow-stone-100 dark:shadow-none space-y-8 backdrop-blur-md">
-              
+
               {/* Section 1: Basic Info */}
               <div className="space-y-6">
                 <div className="flex items-center gap-2 border-b border-stone-100 dark:border-white/10 pb-3">
@@ -298,11 +280,10 @@ export default function AddRecipePage() {
                             key={level}
                             type="button"
                             onClick={() => setDifficultyLevel(level)}
-                            className={`py-3 rounded-xl border text-sm font-bold transition-all duration-200 cursor-pointer ${
-                              isSelected
+                            className={`py-3 rounded-xl border text-sm font-bold transition-all duration-200 cursor-pointer ${isSelected
                                 ? "bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-600/10"
                                 : "bg-stone-50 dark:bg-[#021c17] border-stone-200 dark:border-white/10 text-stone-600 dark:text-stone-300 hover:border-emerald-500/50"
-                            }`}
+                              }`}
                           >
                             {level}
                           </button>
@@ -322,7 +303,7 @@ export default function AddRecipePage() {
 
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-bold text-stone-750 dark:text-stone-300">Upload Image (ImgBB Simulation) *</label>
-                  
+
                   <div className="border-2 border-dashed border-stone-200 dark:border-white/15 rounded-3xl p-6 text-center hover:border-emerald-500 dark:hover:border-emerald-400 transition-colors relative bg-stone-50/50 dark:bg-[#021c17]/50">
                     <input
                       type="file"
@@ -524,7 +505,7 @@ export default function AddRecipePage() {
                     <p className="text-xs font-semibold">Image Preview Area</p>
                   </div>
                 )}
-                
+
                 {/* Badges on Image */}
                 <div className="absolute top-4 left-4 flex flex-col gap-2">
                   <span className="bg-emerald-600/90 backdrop-blur-sm text-white text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-sm">
@@ -538,13 +519,12 @@ export default function AddRecipePage() {
                 </div>
 
                 <div className="absolute top-4 right-4">
-                  <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-sm ${
-                    difficultyLevel === "Easy" 
-                      ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200" 
+                  <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-sm ${difficultyLevel === "Easy"
+                      ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200"
                       : difficultyLevel === "Medium"
-                      ? "bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200"
-                      : "bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-200"
-                  }`}>
+                        ? "bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200"
+                        : "bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-200"
+                    }`}>
                     {difficultyLevel}
                   </span>
                 </div>
