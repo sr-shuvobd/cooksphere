@@ -24,14 +24,11 @@ export default function HeroSection() {
             backgroundPosition: "center right",
           }}
         >
-   
           <div className="absolute inset-0 bg-gradient-to-r from-stone-950/90 via-stone-900/75 to-stone-950/30 dark:from-black/90 dark:via-black/75 dark:to-black/30" />
 
           <div className="relative z-10">
             {/* Hero Content */}
             <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center px-6 md:px-10 lg:px-14 py-12 lg:py-20">
-              
-            
               <motion.div
                 initial={{ opacity: 0, x: -40 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -39,7 +36,9 @@ export default function HeroSection() {
               >
                 <div className="inline-flex items-center gap-2 border border-emerald-400 dark:border-orange-500 rounded-full px-4 py-2 text-white bg-emerald-950/40 dark:bg-black/40 backdrop-blur-md mb-6 shadow-sm">
                   <FaUtensils className="text-emerald-400 dark:text-orange-400" />
-                  <span className="text-xs sm:text-sm font-semibold tracking-wide uppercase">Cook. Share Inspire.</span>
+                  <span className="text-xs sm:text-sm font-semibold tracking-wide uppercase">
+                    Cook. Share Inspire.
+                  </span>
                 </div>
 
                 <h1 className="text-4xl md:text-5xl xl:text-6xl font-extrabold leading-[1.15] text-white tracking-tight">
@@ -52,32 +51,27 @@ export default function HeroSection() {
                 </h1>
 
                 <p className="mt-5 max-w-xl text-stone-200 dark:text-gray-300 text-base md:text-lg leading-relaxed font-medium">
-                  Explore thousands of delicious recipes from around the world. Share your culinary creations, save your favorites, and join our passionate food community.
+                  Explore thousands of delicious recipes from around the world.
+                  Share your culinary creations, save your favorites, and join
+                  our passionate food community.
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-4 mt-8">
-                  <Button
-                    as={Link}
+                  <Link
                     href="/browse-recipes"
-                    size="lg"
-                    radius="full"
-                    className="bg-emerald-600 hover:bg-emerald-700 dark:bg-orange-500 dark:hover:bg-orange-600 text-white font-bold shadow-lg shadow-emerald-950/30 dark:shadow-black/50 transition-all duration-300 cursor-pointer"
-                    startContent={<FaBowlFood className="text-lg" />}
+                    className="bg-emerald-600 hover:bg-emerald-700 dark:bg-orange-500 dark:hover:bg-orange-600 text-white font-bold shadow-lg shadow-emerald-950/30 dark:shadow-black/50 transition-all duration-300 cursor-pointer flex items-center p-3 rounded-full"
+                    // startContent={<FaBowlFood className="text-lg" />}
                   >
                     Browse Recipes
-                  </Button>
+                  </Link>
 
-                  <Button
-                    as={Link}
+                  <Link
                     href="/dashboard"
-                    size="lg"
-                    radius="full"
-                    variant="bordered"
-                    className="text-white border-white/80 hover:bg-white/10 font-bold transition-all duration-300 cursor-pointer"
-                    startContent={<MdRestaurantMenu className="text-lg" />}
+                    className="text-white border border-white/80 hover:bg-white/10 font-bold transition-all duration-300 cursor-pointer flex items-center justify-center gap-2 px-5 py-3 rounded-full"
                   >
+                    <MdRestaurantMenu className="text-lg" />
                     Share Your Recipe
-                  </Button>
+                  </Link>
                 </div>
               </motion.div>
 
@@ -141,11 +135,7 @@ export default function HeroSection() {
             <div className="px-6 md:px-10 lg:px-14 pb-8 lg:pb-12 mb-3">
               <div className="bg-white/95 dark:bg-[#03241f]/90 backdrop-blur-xl rounded-[24px] border border-stone-200/50 dark:border-white/10 p-6 sm:p-8 shadow-xl">
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-                  <StatCard
-                    icon={<FaUtensils />}
-                    value="5K+"
-                    label="Recipes"
-                  />
+                  <StatCard icon={<FaUtensils />} value="5K+" label="Recipes" />
 
                   <StatCard
                     icon={<FaUsers />}
