@@ -1,15 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { Button, Input } from "@heroui/react";
 import { FaGoogle, FaUtensils, FaEye, FaEyeSlash } from "react-icons/fa";
 import { authClient, useSession } from "@/lib/auth-client";
 import { toast } from "react-toastify";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
   const { data: session } = useSession();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -17,9 +19,9 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (session) {
-      router.replace("/dashboard");
+      router.replace(callbackUrl);
     }
-  }, [session, router]);
+  }, [session, router, callbackUrl]);
 
   if (session) {
     return (
@@ -58,7 +60,7 @@ export default function LoginPage() {
       } else {
         toast.success("Login successful! Redirecting...");
         setTimeout(() => {
-          router.push("/dashboard");
+          router.push(callbackUrl);
         }, 1500);
       }
     } catch (err) {
@@ -73,7 +75,7 @@ export default function LoginPage() {
     try {
       await authClient.signIn.social({
         provider: "google",
-        callbackURL: "/dashboard",
+        callbackURL: callbackUrl,
       });
     } catch (err) {
       toast.error("Failed to authenticate with Google.");
@@ -89,12 +91,12 @@ export default function LoginPage() {
               <FaUtensils className="text-2xl text-emerald-600 dark:text-orange-400" />
             </div>
 
-            <h1 className="mt-5 text-3xl md:text-4xl font-black text-stone-800 dark:text-white">
+            <h1 className="mt-5 text-3xl md:text-4xl font-black text-stone-850 dark:text-white">
               Welcome Back
             </h1>
 
             <p className="mt-2 text-center text-stone-500 dark:text-stone-400">
-              Login to your RecipeHub account
+              Login to your CookSphere account
             </p>
           </div>
 
@@ -162,7 +164,7 @@ export default function LoginPage() {
               type="submit"
               size="lg"
               radius="full"
-              className="w-full bg-emerald-600 hover:bg-emerald-700 dark:bg-orange-500 dark:hover:bg-orange-600 text-white font-bold"
+              className="w-full bg-emerald-600 hover:bg-emerald-700 dark:bg-orange-500 dark:hover:bg-orange-600 text-white font-bold cursor-pointer"
               disabled={isLoading}
             >
               {isLoading ? "Logging in..." : "Login"}
@@ -171,7 +173,7 @@ export default function LoginPage() {
 
           <div className="my-7 flex items-center gap-4">
             <div className="h-px flex-1 bg-stone-200 dark:bg-stone-700" />
-            <span className="text-xs font-semibold text-stone-500">OR</span>
+            <span className="text-xs font-semibold text-stone-555">OR</span>
             <div className="h-px flex-1 bg-stone-200 dark:bg-stone-700" />
           </div>
 
@@ -180,7 +182,7 @@ export default function LoginPage() {
             size="lg"
             radius="full"
             startContent={<FaGoogle />}
-            className="w-full"
+            className="w-full cursor-pointer"
             onClick={handleGoogleSignIn}
           >
             Continue with Google
@@ -198,5 +200,17 @@ export default function LoginPage() {
         </div>
       </div>
     </section>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-stone-50 dark:bg-[#021c17]">
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-emerald-600 dark:border-orange-400 border-t-transparent" />
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   );
 }
