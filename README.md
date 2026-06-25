@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# CookSphere
 
-## Getting Started
+CookSphere is a premium recipe-sharing platform for home cooks, food bloggers, and chefs to share their culinary creations.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Recipe Discovery**: Browse and search a wide collection of recipes with filters.
+- **Recipe Management**: User dashboard to add, view, and favorite recipes.
+- **Premium Upgrades**: Free accounts are limited to 2 recipe posts. Users can upgrade to Premium via card payment for unlimited uploads.
+- **Admin Dashboard**: Manage user roles, approve/suspend recipes, and manage recipe reports.
+- **JWT & Proxy Security**: Server-side route protection and JWT cookie security.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Technologies Used
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+- **Frontend**: Next.js 16, Tailwind CSS, HeroUI, motion
+- **Backend**: Express.js, MongoDB, JWT
+- **Authentication**: Better Auth
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Local Setup
 
-## Learn More
+### Backend
 
-To learn more about Next.js, take a look at the following resources:
+1. Navigate to server folder:
+   ```bash
+   cd cooksphere-server
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Set environment variables in a `.env` file:
+   - `MONGO_DB_URL`
+   - `PORT`
+   - `ACCESS_TOKEN_SECRET`
+4. Start the server:
+   ```bash
+   npm start
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Frontend
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Navigate to client folder:
+   ```bash
+   cd cooksphere
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Set environment variables in a `.env` file:
+   - `NEXT_PUBLIC_API_URL`
+   - `BETTER_AUTH_URL`
+   - `BETTER_AUTH_SECRET`
+   - `MONGO_DB_URL`
+4. Run the development server:
+   ```bash
+   npm run dev
+   ```
