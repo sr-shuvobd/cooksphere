@@ -17,7 +17,7 @@ export default function FavoritesPage() {
     setLoading(true);
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`}/users/${encodeURIComponent(session.user.email)}/favorites`
+        `${process.env.NEXT_PUBLIC_API_URL}/users/${encodeURIComponent(session.user.email)}/favorites`
       );
       const data = await response.json();
       if (data) {
@@ -37,7 +37,7 @@ export default function FavoritesPage() {
 
   const handleUnfavorite = async (id) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`}/recipes/${id}/favorite`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/recipes/${id}/favorite`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: session.user.email }),

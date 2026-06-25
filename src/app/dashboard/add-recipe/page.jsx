@@ -40,13 +40,13 @@ export default function AddRecipePage() {
   const fetchRecipesCount = async () => {
     if (!session?.user?.email) return;
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`}/recipes?authorEmail=${encodeURIComponent(session.user.email)}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/recipes?authorEmail=${encodeURIComponent(session.user.email)}`);
       const data = await res.json();
       if (data && typeof data.total === "number") {
         setRecipesCount(data.total);
       }
 
-      const userRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`}/users/${encodeURIComponent(session.user.email)}`);
+      const userRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${encodeURIComponent(session.user.email)}`);
       if (userRes.ok) {
         const userData = await userRes.json();
         setDbUser(userData);
@@ -67,7 +67,7 @@ export default function AddRecipePage() {
     setPurchasing(true);
     const priceValue = selectedCurrency === "BDT" ? 2556.50 : 19.99;
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`}/users/${encodeURIComponent(session.user.email)}/upgrade`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${encodeURIComponent(session.user.email)}/upgrade`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
@@ -239,7 +239,7 @@ export default function AddRecipePage() {
     };
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/recipes`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/recipes`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

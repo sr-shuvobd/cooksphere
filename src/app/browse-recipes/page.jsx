@@ -41,7 +41,7 @@ export default function BrowseRecipes() {
         : "";
       
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`}/recipes?page=${page}&limit=12${categoryQuery}`
+        `${process.env.NEXT_PUBLIC_API_URL}/recipes?page=${page}&limit=12${categoryQuery}`
       );
       const data = await response.json();
       if (data) {

@@ -15,8 +15,8 @@ function TransactionsList({ isAdmin, email }) {
     const fetchTransactions = async () => {
       try {
         const url = isAdmin
-          ? `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/admin/transactions`
-          : `${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`}/users/${encodeURIComponent(email)}/transactions`;
+          ? `${process.env.NEXT_PUBLIC_API_URL}/admin/transactions`
+          : `${process.env.NEXT_PUBLIC_API_URL}/users/${encodeURIComponent(email)}/transactions`;
         const response = await fetch(url);
         const data = await response.json();
         if (data) {

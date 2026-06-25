@@ -31,7 +31,7 @@ export default function ManageRecipesPage() {
   const fetchRecipes = async () => {
     setLoading(true);
     try {
-      let url = `${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`}/recipes?page=${page}&limit=${limit}`;
+      let url = `${process.env.NEXT_PUBLIC_API_URL}/recipes?page=${page}&limit=${limit}`;
       if (search.trim()) {
         url += `&search=${encodeURIComponent(search.trim())}`;
       }
@@ -65,7 +65,7 @@ export default function ManageRecipesPage() {
   const handleToggleFeature = async (recipeId, currentFeatured) => {
     setUpdatingId(recipeId);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`}/recipes/${recipeId}/feature`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/recipes/${recipeId}/feature`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isFeatured: !currentFeatured }),
@@ -88,7 +88,7 @@ export default function ManageRecipesPage() {
     const newStatus = currentStatus === "suspended" ? "active" : "suspended";
     setUpdatingId(recipeId);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`}/recipes/${recipeId}/status`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/recipes/${recipeId}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
@@ -111,7 +111,7 @@ export default function ManageRecipesPage() {
     if (!confirm("Are you sure you want to delete this recipe permanently? This action cannot be undone.")) return;
     setUpdatingId(recipeId);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`}/recipes/${recipeId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/recipes/${recipeId}`, {
         method: "DELETE",
       });
       if (response.ok) {

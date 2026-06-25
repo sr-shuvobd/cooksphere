@@ -74,7 +74,7 @@ const UserDashboard = ({ children }) => {
     const fetchDbUser = async () => {
       if (!session?.user?.email) return;
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`}/users/${encodeURIComponent(session.user.email)}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${encodeURIComponent(session.user.email)}`);
         if (res.ok) {
           const data = await res.json();
           setDbUser(data);
@@ -90,7 +90,7 @@ const UserDashboard = ({ children }) => {
     setPurchasing(true);
     const priceValue = selectedCurrency === "BDT" ? 2556.50 : 19.99;
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`}/users/${encodeURIComponent(session.user.email)}/upgrade`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${encodeURIComponent(session.user.email)}/upgrade`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 

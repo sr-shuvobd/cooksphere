@@ -12,7 +12,7 @@ export default function FeaturedRecipes() {
   useEffect(() => {
     const fetchFeatured = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/recipes?isFeatured=true&limit=6`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/recipes?isFeatured=true&limit=6`);
         const data = await response.json();
         if (data && data.recipes) {
           setRecipes(data.recipes);

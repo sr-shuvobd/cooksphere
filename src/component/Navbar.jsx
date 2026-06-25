@@ -33,9 +33,9 @@ const Navbar = () => {
 
   useEffect(() => {
     const syncToken = async () => {
-      if (session?.user?.email) {
+      if (session?.user?.email && process.env.NEXT_PUBLIC_API_URL) {
         try {
-          await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/jwt`, {
+          await fetch(`${process.env.NEXT_PUBLIC_API_URL}/jwt`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -56,13 +56,15 @@ const Navbar = () => {
       await authClient.signOut({
         fetchOptions: {
           onSuccess: async () => {
-            try {
-              await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/logout`, {
-                method: "POST",
-                credentials: "include",
-              });
-            } catch (err) {
-              console.error("JWT logout error:", err);
+            if (process.env.NEXT_PUBLIC_API_URL) {
+              try {
+                await fetch(`${process.env.NEXT_PUBLIC_API_URL}/logout`, {
+                  method: "POST",
+                  credentials: "include",
+                });
+              } catch (err) {
+                console.error("JWT logout error:", err);
+              }
             }
             toast.success("Successfully logged out!");
             window.location.href = "/";
