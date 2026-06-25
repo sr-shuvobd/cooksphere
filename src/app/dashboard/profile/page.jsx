@@ -21,10 +21,25 @@ export default function ProfilePage() {
   const [uploading, setUploading] = useState(false);
   const [updating, setUpdating] = useState(false);
 
+  const [dbUser, setDbUser] = useState(null);
+
   useEffect(() => {
     if (session?.user) {
       setName(session.user.name || "");
       setImageUrl(session.user.image || "");
+      
+      const fetchDbUser = async () => {
+        try {
+          const res = await fetch(`http://localhost:5000/users/${encodeURIComponent(session.user.email)}`);
+          if (res.ok) {
+            const data = await res.json();
+            setDbUser(data);
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      };
+      fetchDbUser();
     }
   }, [session]);
 
@@ -92,7 +107,9 @@ export default function ProfilePage() {
     }
   };
 
-  const isPremium = session?.user?.role === "premium" || session?.user?.plan === "premium";
+  const isPremium = dbUser
+    ? (dbUser.role === "premium" || dbUser.plan === "premium" || dbUser.role === "admin")
+    : (session?.user?.role === "premium" || session?.user?.plan === "premium" || session?.user?.role === "admin");
 
   return (
     <UserDashboard>

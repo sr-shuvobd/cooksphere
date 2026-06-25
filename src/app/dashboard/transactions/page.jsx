@@ -98,7 +98,7 @@ function TransactionsList({ isAdmin, email }) {
                     </td>
                     <td className="py-4 px-6">
                       <span className="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-350 px-2.5 py-1 rounded-full text-xs font-black">
-                        ${tx.price.toFixed(2)}
+                        {tx.currency === "BDT" ? "৳" : "$"}{tx.price.toFixed(2)} {tx.currency || "USD"}
                       </span>
                     </td>
                     <td className="py-4 px-6 text-stone-600 dark:text-stone-300 font-mono text-xs">

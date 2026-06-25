@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import UserDashboard from "@/component/dashboard/UserDashboard";
 import { useSession } from "@/lib/auth-client";
 import { toast } from "react-toastify";
@@ -16,11 +16,80 @@ import {
   FaInfoCircle,
   FaFire,
   FaChevronRight,
+  FaTimes,
+  FaCreditCard,
+  FaEnvelope
 } from "react-icons/fa";
 
 export default function AddRecipePage() {
   const { data: session } = useSession();
-  const isPremium = session?.user?.role === "premium" || session?.user?.plan === "premium";
+  const [recipesCount, setRecipesCount] = useState(0);
+  const [dbUser, setDbUser] = useState(null);
+  const [isUpgradeOpen, setIsUpgradeOpen] = useState(false);
+  const [selectedCurrency, setSelectedCurrency] = useState("BDT");
+  const [cardNumber, setCardNumber] = useState("4242 4242 4242 4242");
+  const [cardExpiry, setCardExpiry] = useState("12/29");
+  const [cardCvc, setCardCvc] = useState("424");
+  const [cardholderName, setCardholderName] = useState("");
+  const [purchasing, setPurchasing] = useState(false);
+
+  const isPremium = dbUser
+    ? (dbUser.role === "premium" || dbUser.plan === "premium" || dbUser.role === "admin")
+    : (session?.user?.role === "premium" || session?.user?.plan === "premium" || session?.user?.role === "admin");
+
+  const fetchRecipesCount = async () => {
+    if (!session?.user?.email) return;
+    try {
+      const res = await fetch(`http://localhost:5000/recipes?authorEmail=${encodeURIComponent(session.user.email)}`);
+      const data = await res.json();
+      if (data && typeof data.total === "number") {
+        setRecipesCount(data.total);
+      }
+
+      const userRes = await fetch(`http://localhost:5000/users/${encodeURIComponent(session.user.email)}`);
+      if (userRes.ok) {
+        const userData = await userRes.json();
+        setDbUser(userData);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchRecipesCount();
+    if (session?.user?.name) {
+      setCardholderName(session.user.name);
+    }
+  }, [session]);
+
+  const handleUpgradeConfirm = async () => {
+    setPurchasing(true);
+    const priceValue = selectedCurrency === "BDT" ? 2556.50 : 19.99;
+    try {
+      const response = await fetch(`http://localhost:5000/users/${encodeURIComponent(session.user.email)}/upgrade`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          price: priceValue,
+          currency: selectedCurrency
+        }),
+      });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        toast.success("Successfully upgraded to Premium plan!");
+        setIsUpgradeOpen(false);
+        window.location.href = `/payment-success?type=premium&amount=${data.price}&currency=${data.currency}&txnId=${data.txnId}`;
+      } else {
+        toast.error(data.message || "Failed to upgrade");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Error processing upgrade payment");
+    } finally {
+      setPurchasing(false);
+    }
+  };
 
   const [recipeName, setRecipeName] = useState("");
   const [category, setCategory] = useState("Pasta");
@@ -135,6 +204,12 @@ export default function AddRecipePage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!isPremium && recipesCount >= 2) {
+      toast.error("Free accounts are limited to 2 recipe uploads. Please upgrade to Premium!");
+      setIsUpgradeOpen(true);
+      return;
+    }
+
     if (!recipeName.trim()) return toast.error("Recipe Name is required!");
     if (!cuisineType.trim()) return toast.error("Cuisine Type is required!");
     if (!preparationTime || preparationTime <= 0) return toast.error("Please enter a valid preparation time!");
@@ -234,12 +309,32 @@ export default function AddRecipePage() {
           </div>
         </div>
 
-        {/* Form and Preview Grid */}
-        <div className="grid lg:grid-cols-3 gap-8 items-start">
-
-          {/* Main Form (Col Span 2) */}
-          <div className="lg:col-span-2 space-y-6">
-            <form onSubmit={handleSubmit} className="bg-white dark:bg-[#03241f]/30 border border-stone-200 dark:border-white/10 rounded-3xl p-6 md:p-8 shadow-xl shadow-stone-100 dark:shadow-none space-y-8 backdrop-blur-md">
+        {!isPremium && recipesCount >= 2 ? (
+          <div className="bg-white dark:bg-[#03241f]/35 border border-stone-200 dark:border-white/10 rounded-3xl p-10 shadow-xl text-center space-y-6 max-w-2xl mx-auto my-12 backdrop-blur-md">
+            <div className="w-16 h-16 bg-amber-50 dark:bg-amber-950/40 rounded-full flex items-center justify-center border border-amber-200 dark:border-amber-800/40 mx-auto text-amber-500 text-3xl">
+              🔒
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-2xl font-black text-stone-900 dark:text-white">
+                Recipe Upload Limit Reached!
+              </h3>
+              <p className="text-sm font-semibold text-stone-500 dark:text-stone-400 leading-relaxed">
+                You have successfully uploaded {recipesCount} recipes. Free accounts are limited to 2 recipe slots.
+                Upgrade to CookSphere Premium to share unlimited culinary creations!
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsUpgradeOpen(true)}
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-extrabold text-xs py-4 px-8 rounded-2xl shadow-lg transition-all cursor-pointer"
+            >
+              Upgrade to Premium Now
+            </button>
+          </div>
+        ) : (
+          <div className="grid lg:grid-cols-3 gap-8 items-start">
+            <div className="lg:col-span-2 space-y-6">
+              <form onSubmit={handleSubmit} className="bg-white dark:bg-[#03241f]/30 border border-stone-200 dark:border-white/10 rounded-3xl p-6 md:p-8 shadow-xl shadow-stone-100 dark:shadow-none space-y-8 backdrop-blur-md">
 
               {/* Section 1: Basic Info */}
               <div className="space-y-6">
@@ -634,9 +729,207 @@ export default function AddRecipePage() {
             </div>
 
           </div>
-
         </div>
+      )}
       </div>
+
+      {isUpgradeOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white dark:bg-[#03201b] border border-stone-200 dark:border-white/10 rounded-[32px] w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col md:flex-row relative text-stone-800 dark:text-stone-100">
+            <button
+              onClick={() => setIsUpgradeOpen(false)}
+              className="absolute top-4 right-4 text-stone-400 hover:text-stone-600 dark:hover:text-white transition-colors p-2 rounded-full hover:bg-stone-100 dark:hover:bg-white/5 z-10"
+            >
+              <FaTimes className="text-lg" />
+            </button>
+
+            <div className="md:w-1/2 bg-stone-50 dark:bg-[#021815] p-8 flex flex-col justify-between border-b md:border-b-0 md:border-r border-stone-200 dark:border-white/5">
+              <div className="space-y-6">
+                <div>
+                  <span className="bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-350 text-[10px] font-black uppercase tracking-wider px-3 py-1.5 rounded-full inline-block">
+                    👑 Premium Access
+                  </span>
+                  <h3 className="text-2xl font-black text-stone-900 dark:text-white mt-3">
+                    Premium Membership Upgrade
+                  </h3>
+                  <p className="text-xs text-stone-500 dark:text-stone-400 mt-1 font-semibold">
+                    Unlock all recipes and upload unlimited Chef masterworks.
+                  </p>
+                </div>
+
+                <div className="space-y-3.5">
+                  <div className="flex items-center gap-3 text-xs font-bold text-stone-600 dark:text-stone-300">
+                    <span className="text-emerald-500 text-base">✓</span>
+                    <span>Unlimited Recipe Submissions (Bypass the 2-slot limit)</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-xs font-bold text-stone-600 dark:text-stone-300">
+                    <span className="text-emerald-500 text-base">✓</span>
+                    <span>Full Access to All Locked & Premium Recipes</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-xs font-bold text-stone-600 dark:text-stone-300">
+                    <span className="text-emerald-500 text-base">✓</span>
+                    <span>Golden Chef Profile Badge (Premium Badge)</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2 pt-4">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-stone-450 dark:text-stone-550">
+                    Choose Currency
+                  </span>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedCurrency("USD")}
+                      className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all ${
+                        selectedCurrency === "USD"
+                          ? "bg-stone-900 text-white dark:bg-emerald-650"
+                          : "bg-stone-200/50 hover:bg-stone-200 text-stone-700 dark:bg-white/5 dark:hover:bg-white/10 dark:text-stone-300"
+                      }`}
+                    >
+                      USD ($)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedCurrency("BDT")}
+                      className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all ${
+                        selectedCurrency === "BDT"
+                          ? "bg-stone-900 text-white dark:bg-emerald-650"
+                          : "bg-stone-200/50 hover:bg-stone-200 text-stone-700 dark:bg-white/5 dark:hover:bg-white/10 dark:text-stone-300"
+                      }`}
+                    >
+                      BDT (৳)
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-8 border-t border-stone-200 dark:border-white/5 mt-6 md:mt-0">
+                <div className="flex justify-between items-baseline">
+                  <span className="text-xs font-bold text-stone-500 dark:text-stone-400">Total Price:</span>
+                  <span className="text-3xl font-black text-stone-900 dark:text-white">
+                    {selectedCurrency === "BDT" ? "৳2,556.50 BDT" : "$19.99 USD"}
+                  </span>
+                </div>
+                {selectedCurrency === "BDT" && (
+                  <p className="text-[10px] text-stone-400 mt-1 font-semibold">
+                    Converted from $19.99 USD at rate of 127.8898 BDT/USD.
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="md:w-1/2 p-8 space-y-6 flex flex-col justify-between">
+              <div>
+                <h4 className="text-sm font-black text-stone-850 dark:text-white uppercase tracking-wider mb-5">
+                  Secure Checkout by Stripe
+                </h4>
+                
+                <div className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-stone-450 dark:text-stone-550">
+                      Email Address
+                    </label>
+                    <div className="relative">
+                      <FaEnvelope className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400 text-xs" />
+                      <input
+                        type="email"
+                        disabled
+                        value={session?.user?.email || "srs@gmail.com"}
+                        className="w-full bg-stone-100 dark:bg-[#021815] border border-stone-200 dark:border-white/5 rounded-xl pl-10 pr-4 py-3 text-xs font-semibold text-stone-500 dark:text-stone-400 cursor-not-allowed focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-stone-450 dark:text-stone-550">
+                      Card Details
+                    </label>
+                    <div className="relative">
+                      <FaCreditCard className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400 text-xs" />
+                      <input
+                        type="text"
+                        value={cardNumber}
+                        onChange={(e) => setCardNumber(e.target.value)}
+                        placeholder="Card Number"
+                        className="w-full bg-stone-50 dark:bg-[#021815] border border-stone-200 dark:border-white/5 rounded-xl pl-10 pr-4 py-3 text-xs font-bold text-stone-850 dark:text-white focus:ring-1 focus:ring-emerald-500 focus:outline-none"
+                      />
+                    </div>
+                    
+                    <div className="flex gap-4">
+                      <div className="w-1/2 space-y-1">
+                        <input
+                          type="text"
+                          value={cardExpiry}
+                          onChange={(e) => setCardExpiry(e.target.value)}
+                          placeholder="MM / YY"
+                          className="w-full bg-stone-50 dark:bg-[#021815] border border-stone-200 dark:border-white/5 rounded-xl px-4 py-3 text-xs font-bold text-stone-850 dark:text-white focus:ring-1 focus:ring-emerald-500 focus:outline-none"
+                        />
+                      </div>
+                      <div className="w-1/2 space-y-1">
+                        <input
+                          type="text"
+                          value={cardCvc}
+                          onChange={(e) => setCardCvc(e.target.value)}
+                          placeholder="CVC"
+                          className="w-full bg-stone-50 dark:bg-[#021815] border border-stone-200 dark:border-white/5 rounded-xl px-4 py-3 text-xs font-bold text-stone-850 dark:text-white focus:ring-1 focus:ring-emerald-500 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-stone-450 dark:text-stone-550">
+                      Cardholder Name
+                    </label>
+                    <input
+                      type="text"
+                      value={cardholderName}
+                      onChange={(e) => setCardholderName(e.target.value)}
+                      placeholder="Name on Card"
+                      className="w-full bg-stone-50 dark:bg-[#021815] border border-stone-200 dark:border-white/5 rounded-xl px-4 py-3 text-xs font-bold text-stone-855 dark:text-white focus:ring-1 focus:ring-emerald-500 focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-stone-450 dark:text-stone-550">
+                      Country or Region
+                    </label>
+                    <select
+                      className="w-full bg-stone-50 dark:bg-[#021815] border border-stone-200 dark:border-white/5 rounded-xl px-4 py-3 text-xs font-bold text-stone-855 dark:text-white focus:ring-1 focus:ring-emerald-500 focus:outline-none"
+                      defaultValue="Bangladesh"
+                    >
+                      <option>Bangladesh</option>
+                      <option>United States</option>
+                      <option>United Kingdom</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3.5 pt-4">
+                <button
+                  type="button"
+                  onClick={handleUpgradeConfirm}
+                  disabled={purchasing}
+                  className="w-full bg-stone-900 dark:bg-emerald-650 hover:bg-stone-850 dark:hover:bg-emerald-600 text-white font-extrabold text-xs py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  {purchasing ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    `Pay ${selectedCurrency === "BDT" ? "৳2,556.50 BDT" : "$19.99 USD"}`
+                  )}
+                </button>
+                <p className="text-[10px] text-center text-stone-400 font-semibold leading-relaxed">
+                  🔒 Encrypted Connection. This is a simulated checkout environment using Stripe Sandbox keys.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </UserDashboard>
   );
 }
