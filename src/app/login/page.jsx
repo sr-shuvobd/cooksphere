@@ -153,7 +153,8 @@ function LoginContent() {
 
             <div className="flex justify-end">
               <Link
-                href="/forgot-password"
+                href="#"
+                onClick={(e) => { e.preventDefault(); toast.info("Forgot Password feature is not implemented yet."); }}
                 className="text-sm font-medium text-emerald-600 dark:text-orange-400 hover:underline"
               >
                 Forgot Password?
