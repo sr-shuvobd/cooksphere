@@ -134,7 +134,7 @@ export default function TransactionsPage() {
     );
   }
 
-  const isAdmin = session?.user?.email === "srs@gmail.com";
+  const isAdmin = session?.user?.role === "admin" || session?.user?.email === "srs@gmail.com";
 
   return (
     <>
