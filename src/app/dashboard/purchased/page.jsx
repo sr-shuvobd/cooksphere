@@ -18,7 +18,7 @@ export default function PurchasedPage() {
       setLoading(true);
       try {
         const response = await fetch(
-          `http://localhost:5000/users/${encodeURIComponent(session.user.email)}/purchased-recipes`
+          `${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`}/users/${encodeURIComponent(session.user.email)}/purchased-recipes`
         );
         const data = await response.json();
         if (data) {

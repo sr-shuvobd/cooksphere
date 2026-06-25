@@ -13,7 +13,7 @@ export default function ReportsPage() {
 
   const fetchReports = async () => {
     try {
-      const response = await fetch("http://localhost:5000/admin/reports");
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/admin/reports`);
       const data = await response.json();
       if (data) {
         setReports(data);
@@ -33,7 +33,7 @@ export default function ReportsPage() {
   const handleDismissReport = async (reportId) => {
     setActioning(reportId);
     try {
-      const response = await fetch(`http://localhost:5000/admin/reports/${reportId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`}/admin/reports/${reportId}`, {
         method: "DELETE",
       });
       const data = await response.json();
@@ -58,12 +58,12 @@ export default function ReportsPage() {
     setActioning(reportId);
     try {
       // 1. Delete recipe
-      const recipeResponse = await fetch(`http://localhost:5000/recipes/${recipeId}`, {
+      const recipeResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`}/recipes/${recipeId}`, {
         method: "DELETE",
       });
       
       // 2. Dismiss report
-      await fetch(`http://localhost:5000/admin/reports/${reportId}`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`}/admin/reports/${reportId}`, {
         method: "DELETE",
       });
 

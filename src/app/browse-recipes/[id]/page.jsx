@@ -49,7 +49,7 @@ export default function RecipeDetailsPage() {
 
   const fetchRecipeDetails = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/recipes/${id}`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`}/recipes/${id}`);
       if (!response.ok) {
         throw new Error("Failed to fetch recipe");
       }
@@ -68,7 +68,7 @@ export default function RecipeDetailsPage() {
 
       if (session?.user?.email) {
         const accessRes = await fetch(
-          `http://localhost:5000/recipes/${id}/purchase-status?email=${encodeURIComponent(
+          `${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`}/recipes/${id}/purchase-status?email=${encodeURIComponent(
             session.user.email
           )}`
         );
@@ -78,7 +78,7 @@ export default function RecipeDetailsPage() {
 
 
         const favRes = await fetch(
-          `http://localhost:5000/recipes/${id}/favorite-status?email=${encodeURIComponent(
+          `${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`}/recipes/${id}/favorite-status?email=${encodeURIComponent(
             session.user.email
           )}`
         );
@@ -86,7 +86,7 @@ export default function RecipeDetailsPage() {
         setIsFavorite(!!favData.isFavorite);
 
         const likeRes = await fetch(
-          `http://localhost:5000/recipes/${id}/like-status?email=${encodeURIComponent(
+          `${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`}/recipes/${id}/like-status?email=${encodeURIComponent(
             session.user.email
           )}`
         );
@@ -122,7 +122,7 @@ export default function RecipeDetailsPage() {
     setPurchasing(true);
     const priceValue = selectedCurrency === "BDT" ? 638.17 : 4.99;
     try {
-      const response = await fetch(`http://localhost:5000/recipes/${id}/purchase`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`}/recipes/${id}/purchase`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
@@ -155,7 +155,7 @@ export default function RecipeDetailsPage() {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/recipes/${id}/like`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`}/recipes/${id}/like`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: session.user.email }),
@@ -180,7 +180,7 @@ export default function RecipeDetailsPage() {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/recipes/${id}/favorite`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`}/recipes/${id}/favorite`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: session.user.email }),
@@ -205,7 +205,7 @@ export default function RecipeDetailsPage() {
 
     setReporting(true);
     try {
-      const response = await fetch(`http://localhost:5000/recipes/${id}/report`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`}/recipes/${id}/report`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: session.user.email }),

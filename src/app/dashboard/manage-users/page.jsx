@@ -14,7 +14,7 @@ export default function ManageUsersPage() {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch("http://localhost:5000/admin/users");
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/admin/users`);
       const data = await response.json();
       if (data) {
         setUsers(data);
@@ -34,7 +34,7 @@ export default function ManageUsersPage() {
   const handleRoleUpdate = async (email, newRole) => {
     setUpdatingUser(email);
     try {
-      const response = await fetch(`http://localhost:5000/admin/users/${encodeURIComponent(email)}/role`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`}/admin/users/${encodeURIComponent(email)}/role`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ role: newRole }),

@@ -35,7 +35,7 @@ const Navbar = () => {
     const syncToken = async () => {
       if (session?.user?.email) {
         try {
-          await fetch("http://localhost:5000/jwt", {
+          await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/jwt`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -57,7 +57,7 @@ const Navbar = () => {
         fetchOptions: {
           onSuccess: async () => {
             try {
-              await fetch("http://localhost:5000/logout", {
+              await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/logout`, {
                 method: "POST",
                 credentials: "include",
               });

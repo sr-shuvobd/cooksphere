@@ -47,7 +47,7 @@ function UserOverview({ session }) {
     setPurchasing(true);
     const priceValue = selectedCurrency === "BDT" ? 2556.50 : 19.99;
     try {
-      const response = await fetch(`http://localhost:5000/users/${encodeURIComponent(session.user.email)}/upgrade`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`}/users/${encodeURIComponent(session.user.email)}/upgrade`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
@@ -77,7 +77,7 @@ function UserOverview({ session }) {
     if (!session?.user?.email) return;
     try {
       const response = await fetch(
-        `http://localhost:5000/recipes?authorEmail=${encodeURIComponent(
+        `${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`}/recipes?authorEmail=${encodeURIComponent(
           session.user.email
         )}&limit=4`
       );
@@ -88,7 +88,7 @@ function UserOverview({ session }) {
       }
 
       const purchasedRes = await fetch(
-        `http://localhost:5000/users/${encodeURIComponent(session.user.email)}/purchased-recipes`
+        `${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`}/users/${encodeURIComponent(session.user.email)}/purchased-recipes`
       );
       const purchasedData = await purchasedRes.json();
       if (purchasedData) {
@@ -96,7 +96,7 @@ function UserOverview({ session }) {
       }
 
       const userRes = await fetch(
-        `http://localhost:5000/users/${encodeURIComponent(session.user.email)}`
+        `${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`}/users/${encodeURIComponent(session.user.email)}`
       );
       if (userRes.ok) {
         const userData = await userRes.json();
@@ -559,7 +559,7 @@ function AdminOverview() {
   useEffect(() => {
     const fetchAdminData = async () => {
       try {
-        const statsRes = await fetch("http://localhost:5000/admin/stats");
+        const statsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/admin/stats`);
         const statsData = await statsRes.json();
         if (statsData) {
           setStats({
@@ -568,7 +568,7 @@ function AdminOverview() {
           });
         }
 
-        const recipesRes = await fetch("http://localhost:5000/recipes?limit=5");
+        const recipesRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/recipes?limit=5`);
         const recipesData = await recipesRes.json();
         if (recipesData) {
           setRecentRecipes(recipesData.recipes || []);

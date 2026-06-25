@@ -12,7 +12,7 @@ export default function PopularRecipes() {
   useEffect(() => {
     const fetchPopular = async () => {
       try {
-        const response = await fetch("http://localhost:5000/recipes?sortBy=likesCount&limit=4");
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/recipes?sortBy=likesCount&limit=4`);
         const data = await response.json();
         if (data && data.recipes) {
           setRecipes(data.recipes);

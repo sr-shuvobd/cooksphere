@@ -28,7 +28,7 @@ export default function MyRecipesPage() {
     setLoading(true);
     try {
       const response = await fetch(
-        `http://localhost:5000/recipes?authorEmail=${encodeURIComponent(
+        `${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`}/recipes?authorEmail=${encodeURIComponent(
           session.user.email
         )}&page=${page}&limit=5`
       );
@@ -54,7 +54,7 @@ export default function MyRecipesPage() {
 
     setDeletingId(id);
     try {
-      const response = await fetch(`http://localhost:5000/recipes/${id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}`}/recipes/${id}`, {
         method: "DELETE",
       });
       const data = await response.json();
