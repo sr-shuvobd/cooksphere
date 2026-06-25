@@ -16,15 +16,14 @@ import {
   FaUser,
   FaChevronRight,
   FaClock,
-  FaCoins,
+  FaShoppingBag,
 } from "react-icons/fa";
 
 function UserOverview({ session }) {
   const [recipesCount, setRecipesCount] = useState(0);
   const [latestRecipes, setLatestRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [userCoins, setUserCoins] = useState(50);
-  const [buyingPackage, setBuyingPackage] = useState(null);
+  const [purchasedCount, setPurchasedCount] = useState(0);
 
   const fetchUserStats = async () => {
     if (!session?.user?.email) return;
@@ -40,12 +39,12 @@ function UserOverview({ session }) {
         setLatestRecipes(data.recipes || []);
       }
 
-      const userRes = await fetch(
-        `http://localhost:5000/users/${encodeURIComponent(session.user.email)}`
+      const purchasedRes = await fetch(
+        `http://localhost:5000/users/${encodeURIComponent(session.user.email)}/purchased-recipes`
       );
-      const userData = await userRes.json();
-      if (userData) {
-        setUserCoins(userData.coins !== undefined ? userData.coins : 50);
+      const purchasedData = await purchasedRes.json();
+      if (purchasedData) {
+        setPurchasedCount(purchasedData.length || 0);
       }
     } catch (error) {
       console.error(error);
@@ -57,35 +56,6 @@ function UserOverview({ session }) {
   useEffect(() => {
     fetchUserStats();
   }, [session]);
-
-  const handleBuyCoins = async (coins, price) => {
-    if (!session?.user?.email) return;
-    setBuyingPackage(coins);
-    const txnId = `TXN-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-
-    try {
-      const response = await fetch(
-        `http://localhost:5000/users/${encodeURIComponent(session.user.email)}/buy-coins`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ coins, price, transactionId: txnId }),
-        }
-      );
-      const data = await response.json();
-      if (response.ok && data.success) {
-        toast.success(`Successfully purchased ${coins} coins!`);
-        fetchUserStats();
-      } else {
-        toast.error(data.message || "Failed to buy coins");
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("Error during transaction");
-    } finally {
-      setBuyingPackage(null);
-    }
-  };
 
   const isPremium = session?.user?.role === "premium" || session?.user?.plan === "premium";
 
@@ -124,15 +94,15 @@ function UserOverview({ session }) {
         </div>
 
         <div className="bg-white dark:bg-[#03241f]/30 border border-stone-200 dark:border-white/10 rounded-3xl p-6 shadow-xl shadow-stone-100 dark:shadow-none flex items-center gap-5">
-          <div className="w-14 h-14 bg-amber-50 dark:bg-amber-955/20 rounded-2xl flex items-center justify-center text-amber-550 text-2xl flex-shrink-0">
-            <FaCoins />
+          <div className="w-14 h-14 bg-emerald-50 dark:bg-emerald-950/40 rounded-2xl flex items-center justify-center text-emerald-600 dark:text-emerald-450 text-2xl flex-shrink-0">
+            <FaShoppingBag />
           </div>
           <div>
             <p className="text-xs font-bold text-stone-400 dark:text-stone-500 uppercase tracking-wider">
-              Coins Balance
+              Purchased Recipes
             </p>
             <h3 className="text-2xl font-black text-stone-900 dark:text-white mt-1">
-              {userCoins}
+              {purchasedCount}
             </h3>
           </div>
         </div>
@@ -258,49 +228,23 @@ function UserOverview({ session }) {
         <div className="space-y-6">
           <div className="space-y-4">
             <h3 className="font-extrabold text-xl text-stone-900 dark:text-white">
-              Buy Coins Store
+              Upgrade to Premium
             </h3>
-            <div className="bg-white dark:bg-[#03241f]/30 border border-stone-200 dark:border-white/10 rounded-3xl p-6 shadow-xl shadow-stone-100 dark:shadow-none space-y-4">
+            <div className="bg-gradient-to-br from-amber-500 to-orange-600 rounded-3xl p-6 text-white shadow-xl space-y-4">
+              <p className="text-xs font-black uppercase tracking-wider bg-white/20 px-3 py-1 rounded-full inline-block">
+                Unlimited Access
+              </p>
+              <h4 className="text-lg font-black leading-tight">
+                Unlock all premium recipes & get unlimited uploads!
+              </h4>
+              <p className="text-xs text-orange-100 font-semibold leading-relaxed">
+                Upgrade today to get full access to all chef creations and remove all limits.
+              </p>
               <button
                 type="button"
-                onClick={() => handleBuyCoins(100, 1)}
-                disabled={buyingPackage !== null}
-                className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-stone-50 dark:bg-[#021c17] hover:bg-emerald-50 dark:hover:bg-emerald-950/20 border border-stone-100 dark:border-white/5 transition-all text-xs font-extrabold text-stone-850 dark:text-white cursor-pointer"
+                className="w-full bg-white text-orange-600 hover:bg-stone-50 font-black text-xs py-3 rounded-xl transition-all shadow-md cursor-pointer"
               >
-                <span className="flex items-center gap-2">
-                  <FaCoins className="text-amber-500" /> 100 Coins Package
-                </span>
-                <span className="bg-emerald-600 text-white px-3 py-1.5 rounded-xl font-black">
-                  $1.00
-                </span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleBuyCoins(500, 5)}
-                disabled={buyingPackage !== null}
-                className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-stone-50 dark:bg-[#021c17] hover:bg-emerald-50 dark:hover:bg-emerald-950/20 border border-stone-100 dark:border-white/5 transition-all text-xs font-extrabold text-stone-850 dark:text-white cursor-pointer"
-              >
-                <span className="flex items-center gap-2">
-                  <FaCoins className="text-amber-500 animate-pulse" /> 500 Coins Package
-                </span>
-                <span className="bg-emerald-600 text-white px-3 py-1.5 rounded-xl font-black">
-                  $5.00
-                </span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleBuyCoins(1000, 10)}
-                disabled={buyingPackage !== null}
-                className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-stone-50 dark:bg-[#021c17] hover:bg-emerald-50 dark:hover:bg-emerald-950/20 border border-stone-100 dark:border-white/5 transition-all text-xs font-extrabold text-stone-850 dark:text-white cursor-pointer"
-              >
-                <span className="flex items-center gap-2">
-                  <FaCoins className="text-amber-500" /> 1000 Coins Package
-                </span>
-                <span className="bg-emerald-600 text-white px-3 py-1.5 rounded-xl font-black">
-                  $10.00
-                </span>
+                Upgrade Now
               </button>
             </div>
           </div>

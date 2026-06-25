@@ -14,8 +14,11 @@ import {
   FaRegStar,
   FaCheck,
   FaLock,
-  FaCoins,
   FaFlag,
+  FaTimes,
+  FaLockOpen,
+  FaShoppingBag,
+  FaCreditCard,
 } from "react-icons/fa";
 import { useSession } from "@/lib/auth-client";
 import { toast } from "react-toastify";
@@ -35,9 +38,9 @@ export default function RecipeDetailsPage() {
   const [isFavorite, setIsFavorite] = useState(false);
   
   const [hasAccess, setHasAccess] = useState(false);
-  const [userCoins, setUserCoins] = useState(50);
   const [purchasing, setPurchasing] = useState(false);
   const [reporting, setReporting] = useState(false);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
   const fetchRecipeDetails = async () => {
     try {
@@ -67,13 +70,7 @@ export default function RecipeDetailsPage() {
         const accessData = await accessRes.json();
         setHasAccess(!!accessData.hasAccess);
 
-        const userRes = await fetch(
-          `http://localhost:5000/users/${encodeURIComponent(session.user.email)}`
-        );
-        const userData = await userRes.json();
-        if (userData) {
-          setUserCoins(userData.coins !== undefined ? userData.coins : 50);
-        }
+
 
         const favRes = await fetch(
           `http://localhost:5000/recipes/${id}/favorite-status?email=${encodeURIComponent(
@@ -104,18 +101,16 @@ export default function RecipeDetailsPage() {
     checkAccessAndStats();
   }, [id, session]);
 
-  const handleUnlock = async () => {
+  const handleUnlock = () => {
     if (!session?.user?.email) {
       toast.error("Please login to unlock recipes!");
       router.push("/login");
       return;
     }
+    setIsCheckoutOpen(true);
+  };
 
-    if (userCoins < 10) {
-      toast.error("Not enough coins! Please purchase more coins in the dashboard.");
-      return;
-    }
-
+  const handleConfirmPurchase = async () => {
     setPurchasing(true);
     try {
       const response = await fetch(`http://localhost:5000/recipes/${id}/purchase`, {
@@ -126,6 +121,7 @@ export default function RecipeDetailsPage() {
       const data = await response.json();
       if (response.ok && data.success) {
         toast.success("Recipe unlocked successfully!");
+        setIsCheckoutOpen(false);
         checkAccessAndStats();
       } else {
         toast.error(data.message || "Failed to unlock recipe");
@@ -263,12 +259,7 @@ export default function RecipeDetailsPage() {
             <FaChevronLeft className="text-[10px]" /> Back
           </button>
 
-          {session?.user?.email && (
-            <div className="flex items-center gap-2 bg-emerald-600/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-450 px-4 py-2 rounded-xl text-xs font-black">
-              <FaCoins className="text-sm" />
-              <span>{userCoins} Coins Available</span>
-            </div>
-          )}
+
         </div>
 
         <div className="bg-white dark:bg-[#03241f]/30 border border-stone-200 dark:border-white/10 rounded-3xl overflow-hidden shadow-2xl shadow-stone-100 dark:shadow-none">
@@ -326,7 +317,7 @@ export default function RecipeDetailsPage() {
                       Recipe details locked
                     </h2>
                     <p className="text-xs text-stone-500 dark:text-stone-400 font-bold max-w-md mx-auto leading-relaxed">
-                      Viewing ingredients and instructions costs 10 coins. You can unlock it using the Purchase Details action in the right panel.
+                      Viewing ingredients and instructions requires a one-time purchase. You can unlock it using the Purchase Details action in the right panel.
                     </p>
                   </div>
                 </div>
@@ -442,7 +433,7 @@ export default function RecipeDetailsPage() {
                         Processing...
                       </>
                     ) : hasAccess ? (
-                      "Details Unlocked"
+                      "Purchased"
                     ) : (
                       "Purchase Details"
                     )}
@@ -492,6 +483,101 @@ export default function RecipeDetailsPage() {
         </div>
 
       </div>
+
+      {isCheckoutOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-[#03241f] border border-stone-200 dark:border-white/10 rounded-[32px] max-w-md w-full p-6 shadow-2xl space-y-6 relative">
+            <button
+              type="button"
+              onClick={() => setIsCheckoutOpen(false)}
+              className="absolute top-6 right-6 text-stone-450 hover:text-stone-600 dark:hover:text-white transition-colors cursor-pointer"
+            >
+              <FaTimes className="text-lg" />
+            </button>
+
+            <div className="space-y-2">
+              <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-450 uppercase tracking-widest bg-emerald-50 dark:bg-emerald-950/40 px-3 py-1 rounded-full inline-block">
+                Secure Checkout
+              </span>
+              <h3 className="text-xl font-black text-stone-900 dark:text-white">
+                Purchase Recipe Details
+              </h3>
+              <p className="text-xs text-stone-500 dark:text-stone-400 font-semibold leading-relaxed">
+                You are about to purchase access to the premium recipe details. Once unlocked, it will be added to your Purchased library.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-stone-50 dark:bg-[#021c17] border border-stone-100 dark:border-white/5 space-y-3">
+              <div className="flex items-center gap-3">
+                <img
+                  src={recipe.recipeImage || "https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=300"}
+                  alt={recipe.recipeName}
+                  className="w-12 h-12 object-cover rounded-xl border border-stone-205 dark:border-white/10"
+                />
+                <div className="overflow-hidden">
+                  <p className="text-xs font-black text-stone-900 dark:text-white truncate">
+                    {recipe.recipeName}
+                  </p>
+                  <p className="text-[10px] text-stone-500 dark:text-stone-400 font-bold">
+                    by {recipe.authorName || "Chef"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="border-t border-stone-200/60 dark:border-white/5 pt-3 flex justify-between items-center text-xs font-extrabold text-stone-700 dark:text-stone-300">
+                <span>Unlock Price</span>
+                <span className="text-emerald-600 dark:text-emerald-450 font-black text-sm">$1.00</span>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <span className="text-[10px] font-black text-stone-450 dark:text-stone-550 uppercase tracking-widest block">
+                Payment Option
+              </span>
+
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between p-3.5 rounded-xl border-2 border-emerald-500/25 bg-emerald-50/10 dark:bg-emerald-950/10 text-xs font-black text-stone-850 dark:text-white">
+                  <span className="flex items-center gap-2.5">
+                    <FaCreditCard className="text-emerald-500 text-sm" />
+                    Simulated Payment Gateway
+                  </span>
+                  <span className="text-[10px] bg-emerald-600 text-white px-2 py-0.5 rounded font-black">
+                    Selected
+                  </span>
+                </div>
+                
+                <div className="opacity-50 flex items-center justify-between p-3.5 rounded-xl border border-stone-200 dark:border-white/5 text-xs font-bold text-stone-500 dark:text-stone-400">
+                  <span className="flex items-center gap-2.5">
+                    <FaShoppingBag className="text-stone-400 text-sm" />
+                    Stripe / SSLCommerz (Later)
+                  </span>
+                  <span className="text-[9px] bg-stone-100 dark:bg-white/5 px-2 py-0.5 rounded font-black">
+                    Inactive
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleConfirmPurchase}
+              disabled={purchasing}
+              className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-2xl transition-all shadow-lg cursor-pointer flex items-center justify-center gap-2"
+            >
+              {purchasing ? (
+                <>
+                  <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Processing Checkout...
+                </>
+              ) : (
+                <>
+                  <FaLockOpen className="text-xs" /> Confirm & Unlock Details
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

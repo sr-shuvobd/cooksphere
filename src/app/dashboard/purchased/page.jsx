@@ -39,11 +39,11 @@ export default function PurchasedPage() {
     <UserDashboard>
       <div className="max-w-6xl mx-auto space-y-8">
         <div>
-          <h1 className="text-3xl font-black text-stone-850 dark:text-white">
+          <h1 className="text-3xl font-black text-stone-855 dark:text-white">
             Purchased Recipes
           </h1>
           <p className="text-stone-500 dark:text-stone-400 mt-1">
-            Recipes you have unlocked using coins.
+            Recipes you have purchased and unlocked.
           </p>
         </div>
 
@@ -57,7 +57,7 @@ export default function PurchasedPage() {
             <p className="text-5xl">🔑</p>
             <h3 className="text-xl font-bold text-stone-850 dark:text-white">No Purchases Yet</h3>
             <p className="text-sm text-stone-500 dark:text-stone-400 max-w-md mx-auto">
-              You haven't unlocked any recipes with coins yet. Browse recipes to unlock them!
+              You haven't purchased or unlocked any recipes yet. Browse recipes to unlock them!
             </p>
             <Link
               href="/browse-recipes"

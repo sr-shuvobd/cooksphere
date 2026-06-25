@@ -5,7 +5,7 @@ import AdminDashboard from "@/component/dashboard/AdminDashboard";
 import UserDashboard from "@/component/dashboard/UserDashboard";
 import { useSession } from "@/lib/auth-client";
 import { toast } from "react-toastify";
-import { FaCoins, FaReceipt, FaUser, FaRegCalendarAlt } from "react-icons/fa";
+import { FaReceipt, FaUser, FaRegCalendarAlt } from "react-icons/fa";
 
 function TransactionsList({ isAdmin, email }) {
   const [transactions, setTransactions] = useState([]);
@@ -52,15 +52,15 @@ function TransactionsList({ isAdmin, email }) {
         </h1>
         <p className="text-stone-500 dark:text-stone-400 mt-1">
           {isAdmin
-            ? "View and monitor all platform coin purchase transactions."
-            : "Review your coin purchase logs and billing history."}
+            ? "View and monitor all platform purchase transactions."
+            : "Review your recipe purchase logs and billing history."}
         </p>
       </div>
 
       {transactions.length === 0 ? (
         <div className="py-20 text-center space-y-5 bg-white dark:bg-[#03241f]/10 border border-stone-200 dark:border-white/5 rounded-3xl">
           <p className="text-5xl">💳</p>
-          <h3 className="text-xl font-bold text-stone-850 dark:text-white">No Transactions Yet</h3>
+          <h3 className="text-xl font-bold text-stone-855 dark:text-white">No Transactions Yet</h3>
           <p className="text-sm text-stone-500 dark:text-stone-400 max-w-md mx-auto">
             No transactions recorded on this account.
           </p>
@@ -72,7 +72,7 @@ function TransactionsList({ isAdmin, email }) {
               <thead>
                 <tr className="border-b border-stone-150 dark:border-white/5 text-stone-400 dark:text-stone-500 font-bold bg-stone-50/50 dark:bg-white/5">
                   {isAdmin && <th className="py-4 px-6">User Email</th>}
-                  <th className="py-4 px-6">Coins Purchased</th>
+                  <th className="py-4 px-6">Description / Recipe</th>
                   <th className="py-4 px-6">Price</th>
                   <th className="py-4 px-6">Transaction ID</th>
                   <th className="py-4 px-6">Date</th>
@@ -89,7 +89,11 @@ function TransactionsList({ isAdmin, email }) {
                     )}
                     <td className="py-4 px-6">
                       <span className="flex items-center gap-1.5 text-stone-900 dark:text-white">
-                        <FaCoins className="text-amber-500" /> {tx.coins} Coins
+                        {tx.recipeName ? (
+                          <span className="font-extrabold text-stone-850 dark:text-white">{tx.recipeName}</span>
+                        ) : (
+                          <span className="text-stone-500 font-semibold">{tx.coins ? `${tx.coins} Coins Package` : "Recipe Unlocked"}</span>
+                        )}
                       </span>
                     </td>
                     <td className="py-4 px-6">
