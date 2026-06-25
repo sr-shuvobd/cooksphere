@@ -193,11 +193,11 @@ export default function BrowseRecipes() {
                     <div className="pt-2 border-t border-stone-100 dark:border-white/10 flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <img
-                          src={recipe.authorImage || "https://i.pravatar.cc/150"}
+                          src={recipe.authorImage || `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(recipe.authorEmail || 'chef')}`}
                           alt={recipe.authorName}
                           className="w-7 h-7 rounded-full border border-emerald-500 object-cover"
                           onError={(e) => {
-                            e.target.src = "https://i.pravatar.cc/150";
+                            e.target.src = `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(recipe.authorEmail || 'chef')}`;
                           }}
                         />
                         <span className="text-xs font-bold text-stone-700 dark:text-stone-300 truncate max-w-[100px]">

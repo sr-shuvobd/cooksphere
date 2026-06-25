@@ -5,6 +5,7 @@ import Link from "next/link";
 import AdminDashboard from "@/component/dashboard/AdminDashboard";
 import UserDashboard from "@/component/dashboard/UserDashboard";
 import { useSession } from "@/lib/auth-client";
+import { toast } from "react-toastify";
 import {
   FaUtensils,
   FaUsers,
@@ -15,37 +16,76 @@ import {
   FaUser,
   FaChevronRight,
   FaClock,
+  FaCoins,
 } from "react-icons/fa";
 
 function UserOverview({ session }) {
   const [recipesCount, setRecipesCount] = useState(0);
   const [latestRecipes, setLatestRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [userCoins, setUserCoins] = useState(50);
+  const [buyingPackage, setBuyingPackage] = useState(null);
+
+  const fetchUserStats = async () => {
+    if (!session?.user?.email) return;
+    try {
+      const response = await fetch(
+        `http://localhost:5000/recipes?authorEmail=${encodeURIComponent(
+          session.user.email
+        )}&limit=4`
+      );
+      const data = await response.json();
+      if (data) {
+        setRecipesCount(data.total || 0);
+        setLatestRecipes(data.recipes || []);
+      }
+
+      const userRes = await fetch(
+        `http://localhost:5000/users/${encodeURIComponent(session.user.email)}`
+      );
+      const userData = await userRes.json();
+      if (userData) {
+        setUserCoins(userData.coins !== undefined ? userData.coins : 50);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    if (!session?.user?.email) return;
-
-    const fetchUserStats = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:5000/recipes?authorEmail=${encodeURIComponent(
-            session.user.email
-          )}&limit=4`
-        );
-        const data = await response.json();
-        if (data) {
-          setRecipesCount(data.total || 0);
-          setLatestRecipes(data.recipes || []);
-        }
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchUserStats();
   }, [session]);
+
+  const handleBuyCoins = async (coins, price) => {
+    if (!session?.user?.email) return;
+    setBuyingPackage(coins);
+    const txnId = `TXN-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/users/${encodeURIComponent(session.user.email)}/buy-coins`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ coins, price, transactionId: txnId }),
+        }
+      );
+      const data = await response.json();
+      if (response.ok && data.success) {
+        toast.success(`Successfully purchased ${coins} coins!`);
+        fetchUserStats();
+      } else {
+        toast.error(data.message || "Failed to buy coins");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Error during transaction");
+    } finally {
+      setBuyingPackage(null);
+    }
+  };
 
   const isPremium = session?.user?.role === "premium" || session?.user?.plan === "premium";
 
@@ -68,7 +108,7 @@ function UserOverview({ session }) {
         </div>
       </div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-white dark:bg-[#03241f]/30 border border-stone-200 dark:border-white/10 rounded-3xl p-6 shadow-xl shadow-stone-100 dark:shadow-none flex items-center gap-5">
           <div className="w-14 h-14 bg-emerald-50 dark:bg-emerald-950/50 rounded-2xl flex items-center justify-center text-emerald-600 dark:text-emerald-450 text-2xl flex-shrink-0">
             <FaBookOpen />
@@ -84,12 +124,26 @@ function UserOverview({ session }) {
         </div>
 
         <div className="bg-white dark:bg-[#03241f]/30 border border-stone-200 dark:border-white/10 rounded-3xl p-6 shadow-xl shadow-stone-100 dark:shadow-none flex items-center gap-5">
+          <div className="w-14 h-14 bg-amber-50 dark:bg-amber-955/20 rounded-2xl flex items-center justify-center text-amber-550 text-2xl flex-shrink-0">
+            <FaCoins />
+          </div>
+          <div>
+            <p className="text-xs font-bold text-stone-400 dark:text-stone-500 uppercase tracking-wider">
+              Coins Balance
+            </p>
+            <h3 className="text-2xl font-black text-stone-900 dark:text-white mt-1">
+              {userCoins}
+            </h3>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-[#03241f]/30 border border-stone-200 dark:border-white/10 rounded-3xl p-6 shadow-xl shadow-stone-100 dark:shadow-none flex items-center gap-5">
           <div className="w-14 h-14 bg-amber-50 dark:bg-amber-955/20 rounded-2xl flex items-center justify-center text-amber-500 text-2xl flex-shrink-0">
             <FaCrown />
           </div>
           <div className="flex-1">
             <p className="text-xs font-bold text-stone-400 dark:text-stone-500 uppercase tracking-wider">
-              Membership Plan
+              Membership
             </p>
             <div className="flex items-center gap-2 mt-1">
               <span className={`text-sm font-black uppercase tracking-wider px-3 py-0.5 rounded-full ${
@@ -103,7 +157,7 @@ function UserOverview({ session }) {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-[#03241f]/30 border border-stone-200 dark:border-white/10 rounded-3xl p-6 shadow-xl shadow-stone-100 dark:shadow-none sm:col-span-2 lg:col-span-1">
+        <div className="bg-white dark:bg-[#03241f]/30 border border-stone-200 dark:border-white/10 rounded-3xl p-6 shadow-xl shadow-stone-100 dark:shadow-none">
           <p className="text-xs font-bold text-stone-450 dark:text-stone-500 uppercase tracking-wider mb-2.5">
             Recipe Limit
           </p>
@@ -201,41 +255,92 @@ function UserOverview({ session }) {
           )}
         </div>
 
-        <div className="space-y-4">
-          <h3 className="font-extrabold text-xl text-stone-900 dark:text-white">
-            Quick Actions
-          </h3>
+        <div className="space-y-6">
+          <div className="space-y-4">
+            <h3 className="font-extrabold text-xl text-stone-900 dark:text-white">
+              Buy Coins Store
+            </h3>
+            <div className="bg-white dark:bg-[#03241f]/30 border border-stone-200 dark:border-white/10 rounded-3xl p-6 shadow-xl shadow-stone-100 dark:shadow-none space-y-4">
+              <button
+                type="button"
+                onClick={() => handleBuyCoins(100, 1)}
+                disabled={buyingPackage !== null}
+                className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-stone-50 dark:bg-[#021c17] hover:bg-emerald-50 dark:hover:bg-emerald-950/20 border border-stone-100 dark:border-white/5 transition-all text-xs font-extrabold text-stone-850 dark:text-white cursor-pointer"
+              >
+                <span className="flex items-center gap-2">
+                  <FaCoins className="text-amber-500" /> 100 Coins Package
+                </span>
+                <span className="bg-emerald-600 text-white px-3 py-1.5 rounded-xl font-black">
+                  $1.00
+                </span>
+              </button>
 
-          <div className="bg-white dark:bg-[#03241f]/30 border border-stone-200 dark:border-white/10 rounded-3xl p-6 shadow-xl shadow-stone-100 dark:shadow-none space-y-3">
-            <Link
-              href="/dashboard/add-recipe"
-              className="flex items-center justify-between p-3.5 rounded-2xl bg-stone-50 dark:bg-[#021c17] hover:bg-emerald-50 dark:hover:bg-emerald-950/20 border border-stone-100 dark:border-white/5 transition-all text-sm font-extrabold text-stone-800 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-450"
-            >
-              <span className="flex items-center gap-3">
-                <FaPlus className="text-emerald-600" /> Add Recipe
-              </span>
-              <FaChevronRight className="text-xs text-stone-400" />
-            </Link>
+              <button
+                type="button"
+                onClick={() => handleBuyCoins(500, 5)}
+                disabled={buyingPackage !== null}
+                className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-stone-50 dark:bg-[#021c17] hover:bg-emerald-50 dark:hover:bg-emerald-950/20 border border-stone-100 dark:border-white/5 transition-all text-xs font-extrabold text-stone-850 dark:text-white cursor-pointer"
+              >
+                <span className="flex items-center gap-2">
+                  <FaCoins className="text-amber-500 animate-pulse" /> 500 Coins Package
+                </span>
+                <span className="bg-emerald-600 text-white px-3 py-1.5 rounded-xl font-black">
+                  $5.00
+                </span>
+              </button>
 
-            <Link
-              href="/browse-recipes"
-              className="flex items-center justify-between p-3.5 rounded-2xl bg-stone-50 dark:bg-[#021c17] hover:bg-emerald-50 dark:hover:bg-emerald-950/20 border border-stone-100 dark:border-white/5 transition-all text-sm font-extrabold text-stone-800 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-450"
-            >
-              <span className="flex items-center gap-3">
-                <FaUtensils className="text-emerald-600" /> Browse Recipes
-              </span>
-              <FaChevronRight className="text-xs text-stone-400" />
-            </Link>
+              <button
+                type="button"
+                onClick={() => handleBuyCoins(1000, 10)}
+                disabled={buyingPackage !== null}
+                className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-stone-50 dark:bg-[#021c17] hover:bg-emerald-50 dark:hover:bg-emerald-950/20 border border-stone-100 dark:border-white/5 transition-all text-xs font-extrabold text-stone-850 dark:text-white cursor-pointer"
+              >
+                <span className="flex items-center gap-2">
+                  <FaCoins className="text-amber-500" /> 1000 Coins Package
+                </span>
+                <span className="bg-emerald-600 text-white px-3 py-1.5 rounded-xl font-black">
+                  $10.00
+                </span>
+              </button>
+            </div>
+          </div>
 
-            <Link
-              href="/dashboard/profile"
-              className="flex items-center justify-between p-3.5 rounded-2xl bg-stone-50 dark:bg-[#021c17] hover:bg-emerald-50 dark:hover:bg-emerald-950/20 border border-stone-100 dark:border-white/5 transition-all text-sm font-extrabold text-stone-800 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-450"
-            >
-              <span className="flex items-center gap-3">
-                <FaUser className="text-emerald-600" /> Edit Profile
-              </span>
-              <FaChevronRight className="text-xs text-stone-400" />
-            </Link>
+          <div className="space-y-4">
+            <h3 className="font-extrabold text-xl text-stone-900 dark:text-white">
+              Quick Actions
+            </h3>
+
+            <div className="bg-white dark:bg-[#03241f]/30 border border-stone-200 dark:border-white/10 rounded-3xl p-6 shadow-xl shadow-stone-100 dark:shadow-none space-y-3">
+              <Link
+                href="/dashboard/add-recipe"
+                className="flex items-center justify-between p-3.5 rounded-2xl bg-stone-50 dark:bg-[#021c17] hover:bg-emerald-50 dark:hover:bg-emerald-950/20 border border-stone-100 dark:border-white/5 transition-all text-sm font-extrabold text-stone-800 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-450"
+              >
+                <span className="flex items-center gap-3">
+                  <FaPlus className="text-emerald-600" /> Add Recipe
+                </span>
+                <FaChevronRight className="text-xs text-stone-400" />
+              </Link>
+
+              <Link
+                href="/browse-recipes"
+                className="flex items-center justify-between p-3.5 rounded-2xl bg-stone-50 dark:bg-[#021c17] hover:bg-emerald-50 dark:hover:bg-emerald-950/20 border border-stone-100 dark:border-white/5 transition-all text-sm font-extrabold text-stone-800 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-450"
+              >
+                <span className="flex items-center gap-3">
+                  <FaUtensils className="text-emerald-600" /> Browse Recipes
+                </span>
+                <FaChevronRight className="text-xs text-stone-400" />
+              </Link>
+
+              <Link
+                href="/dashboard/profile"
+                className="flex items-center justify-between p-3.5 rounded-2xl bg-stone-50 dark:bg-[#021c17] hover:bg-emerald-50 dark:hover:bg-emerald-950/20 border border-stone-100 dark:border-white/5 transition-all text-sm font-extrabold text-stone-800 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-450"
+              >
+                <span className="flex items-center gap-3">
+                  <FaUser className="text-emerald-600" /> Edit Profile
+                </span>
+                <FaChevronRight className="text-xs text-stone-400" />
+              </Link>
+            </div>
           </div>
         </div>
       </div>

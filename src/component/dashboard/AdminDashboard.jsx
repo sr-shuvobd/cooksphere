@@ -96,7 +96,7 @@ const AdminDashboard = ({ children }) => {
           
           <div className="flex flex-col items-center">
             <img
-              src={session?.user?.image || "https://i.pravatar.cc/150"}
+              src={session?.user?.image || `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(session?.user?.email || 'chef')}`}
               alt="user"
               className="w-20 h-20 rounded-full border-4 border-red-500 object-cover"
             />
