@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@heroui/react";
 import { FaUtensils } from "react-icons/fa";
 import { FiMenu, FiX, FiSun, FiMoon } from "react-icons/fi";
@@ -31,11 +31,39 @@ const Navbar = () => {
   const { theme, toggleTheme, mounted } = useTheme();
   const { data: session, isPending } = useSession();
 
+  useEffect(() => {
+    const syncToken = async () => {
+      if (session?.user?.email) {
+        try {
+          await fetch("http://localhost:5000/jwt", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email: session.user.email }),
+            credentials: "include",
+          });
+        } catch (err) {
+          console.error("JWT sync error:", err);
+        }
+      }
+    };
+    syncToken();
+  }, [session]);
+
   const handleLogout = async () => {
     try {
       await authClient.signOut({
         fetchOptions: {
-          onSuccess: () => {
+          onSuccess: async () => {
+            try {
+              await fetch("http://localhost:5000/logout", {
+                method: "POST",
+                credentials: "include",
+              });
+            } catch (err) {
+              console.error("JWT logout error:", err);
+            }
             toast.success("Successfully logged out!");
             window.location.href = "/";
           }

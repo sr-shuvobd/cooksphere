@@ -7,8 +7,10 @@ export function proxy(request) {
   const isRecipeDetails = pathname.startsWith("/browse-recipes/") && pathname !== "/browse-recipes";
 
   if (isDashboard || isRecipeDetails) {
-    const sessionToken = request.cookies.get("better-auth.session_token")?.value;
-    if (!sessionToken) {
+    const cookies = request.cookies.getAll();
+    const hasSession = cookies.some(cookie => cookie.name.includes("session_token"));
+    
+    if (!hasSession) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("callbackUrl", pathname);
       return NextResponse.redirect(loginUrl);
